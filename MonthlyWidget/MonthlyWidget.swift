@@ -44,6 +44,8 @@ struct DayEntry: TimelineEntry {
 
 
 struct MonthlyWidgetEntryView : View {
+    @Environment(\.widgetFamily) var widgetFamily
+    
     var entry: DayEntry
     var config: MonthConfig
     
@@ -54,32 +56,40 @@ struct MonthlyWidgetEntryView : View {
     
 
     var body: some View {
-        ZStack{
-            ContainerRelativeShape()
-                .fill(config.backgroundColor.gradient)
-            
-            VStack{
-                HStack(spacing: 4){
-                    Spacer()
-                    Image(systemName: "\(config.sfSymbols)")
-                        .font(.title3)
+        switch widgetFamily {
+        case .systemSmall:
+            ZStack{
+                ContainerRelativeShape()
+                    .fill(config.backgroundColor.gradient)
+                
+                VStack{
+                    HStack(spacing: 4){
+                        Spacer()
+                        Image(systemName: "\(config.sfSymbols)")
+                            .font(.title3)
+                            .foregroundColor(config.dayAndWeekColor)
+                        Text(entry.date.weekdayDisplayFormat)
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .minimumScaleFactor(0.6)
+                            .foregroundColor(config.dayAndWeekColor)
+                        Spacer()
+                    }
+                    Text(entry.date.dayDisplayFormat)
+                        .font(.system(size: 80, weight: .heavy))
+                        .foregroundColor(config.weekdayTextColor)
+                    Text("U\(config.weekNumber(from: entry.date))")
+                        .font(.system(size: 12, weight: .light))
                         .foregroundColor(config.dayAndWeekColor)
-                    Text(entry.date.weekdayDisplayFormat)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .minimumScaleFactor(0.6)
-                        .foregroundColor(config.dayAndWeekColor)
-                    Spacer()
                 }
-                Text(entry.date.dayDisplayFormat)
-                    .font(.system(size: 80, weight: .heavy))
-                    .foregroundColor(config.weekdayTextColor)
-                Text("U\(config.weekNumber(from: entry.date))")
-                    .font(.system(size: 12, weight: .light))
-                    .foregroundColor(config.dayAndWeekColor)
+                .padding()
             }
-            .padding()
+        case .accessoryInline:
+            Text("U\(config.weekNumber(from: entry.date))")
+        default:
+            Text("Not implemented")
         }
+        
     }
 }
 
@@ -93,7 +103,7 @@ struct MonthlyWidget: Widget {
         }
         .configurationDisplayName("Monthly Style Widget")
         .description("The theme of the widget changes based on the month")
-        .supportedFamilies([.systemSmall])
+        .supportedFamilies([.systemSmall, .accessoryInline])
     }
 }
 
@@ -101,6 +111,12 @@ struct MonthlyWidget_Previews: PreviewProvider {
     static var previews: some View {
         MonthlyWidgetEntryView(entry: DayEntry(date: Date(), configuration: ConfigurationIntent()))
             .previewContext(WidgetPreviewContext(family: .systemSmall))
+            .previewDisplayName("systemSmall")
+        
+        MonthlyWidgetEntryView(entry: DayEntry(date: Date(), configuration: ConfigurationIntent()))
+            .previewContext(WidgetPreviewContext(family: .accessoryInline))
+            .previewDisplayName("Inline")
+
     }
     //Test funktion
     static func DateToDisplay(month: Int, day: Int) -> Date {
