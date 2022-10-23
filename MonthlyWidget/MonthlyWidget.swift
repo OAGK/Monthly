@@ -85,7 +85,7 @@ struct MonthlyWidgetEntryView : View {
                 .padding()
             }
         case .accessoryInline:
-            Text("U\(config.weekNumber(from: entry.date))")
+            Text("uge. \(config.weekNumber(from: entry.date)).")
         default:
             Text("Not implemented")
         }
